@@ -13,452 +13,12 @@
 	var DELETE = "Delete";
 	var CANCEL = "Cancel";
 	var SAVE = "Save";
-	
-	// next index generator - it gets the maximum id and adds 1
-	var nextIndex = function (arrayOfObjects) {
-    var i;
-		if (arrayOfObjects !== undefined && arrayOfObjects.length > 0){
-			var maxIndex = arrayOfObjects[0].id;
-			for (i = 1; i < arrayOfObjects.length; i++) {
-				if (maxIndex < arrayOfObjects[i].id){
-					maxIndex = arrayOfObjects[i].id;
-				}
-			}
-			return ++maxIndex;
-		}
-		return 1;
-	};
 
-	 // Prototypes
-	var Client = function(name, country) {
-		this.id = nextIndex(clientCollection);
-		this.name = name;
-		this.country = country;
-	};
-	Client.prototype.toString = function clientToString() {
-		return this.id + " " + this.name;
-	};
-	Client.fromJSON = function(json){
-		//var obj = JSON.parse(json);
-		var client = new Client (json.name, json.country);
-		client.id = json.id;
-		return client;
-	};
-
-	var Project = function(name, client_id) {
-		this.id = nextIndex(projectCollection);
-		this.name = name;
-		this.client_id = client_id;
-	};
-	Project.prototype.toString = function projectToString() {
-		return findObjectById(clientCollection, this.client_id) + " : " + this.id + " " + this.name;
-	};
-	Project.fromJSON = function(json){
-		//var obj = JSON.parse(json);
-		var project = new Project(json.name, json.client_id);
-		project.id = json.id;
-		return project;
-	};
-		
-	var Employee = function(firstname, lastname, gender, projects) {
-		this.id = nextIndex(employeeCollection);
-		this.firstname = firstname;
-		this.lastname = lastname;
-		this.gender = gender;
-		this.projects = projects;
-	};
-	Employee.prototype.toString = function employeeToString() {
-		return this.firstname + " " + this.lastname ;
-	};
-	Employee.fromJSON = function(json){
-		//var obj = JSON.parse(json);
-		var employee = new Employee(json.firstname, json.lastname, json.gender, json.projects);
-		employee.id = json.id;
-		return employee;
-	};
-	
 	// creating the arrays
 	var clientCollection = [];
 	var projectCollection = [];
 	var employeeCollection = [];
-		
-	var countryMap = {
-		"FR":"France",
-		"RO":"Romaina",
-		"UK":"United Kingdom",
-		"DE":"Germany",
-		"US":"USA"
-	};
 	
-	var genderMap = {"M" : "Male", "F" : "Female"};
-	
-	// creating an element of type "select" and populating it with some values
-	// the values will be those corresponding to the map
-	function generateSelectByMap(map, id){
-		var selectObject = document.createElement("select");
-		var key;
-		selectObject.id = id;
-		
-		// Question ???
-		// why is this a good practice?
-		// The body of a for in should be wrapped in an if statement to filter unwanted properties from the prototype.
-		for(key in map){
-			if (map.hasOwnProperty(key)) {
-				selectObject.options.add(new Option(map[key],key));
-			}
-		}
-		
-		return selectObject;
-	}
-	
-	// creating an element of type "select" and populating it with some values
-	// the values will be those corresponding to the collection
-	function generateSelect(collection, elementId, multiple){
-		var selectObject;
-		var i;
-		
-		if (collection !== null && collection.length > 0){
-			selectObject = document.createElement("select");
-			if (multiple){
-				selectObject.multiple = multiple;
-			}
-			
-			selectObject.id = elementId;
-			for (i = 0; i < collection.length; i++) {
-				selectObject.options.add(new Option(collection[i] , collection[i].id));
-			}
-		} 
-	
-		return selectObject;
-	}
-	
-	function findObjectById(collection, id){
-		var i;
-    for (i = 0; i < collection.length; i++){
-			if (collection[i].id == id) {
-				return collection[i];
-			}
-		}
-		return null;
-	} 
-	
-	function getSelectedValues(elementId){
-		var selectedValues = [];
-		var selectBox = document.getElementById(elementId);
-		for (var i = 0; i < selectBox.options.length; i++) {
-			if( selectBox.options[i].selected == true){
-				selectedValues[selectedValues.length] = selectBox.options[i].value;
-			}
-		}
-		return selectedValues;
-	}
-	
-	var Table = function(){
-		this.render = function () {		
-		
-			// I need it!
-			var i;
-			// clear body in case it exists
-			if (this.table.tBodies[0] !== undefined){
-				this.table.removeChild(this.table.tBodies[0]);
-			}
-			this.table.createTBody();
-			
-			if (this.collection.length > 0){
-				for (i = 0; i < this.collection.length; i++) {
-					var object = this.collection[i];
-					this.addRowToTable(object);
-				}
-				this.addFinalRow();
-			} else {
-				this.addEditRowToTable();
-			}
-		};
-		
-		// it's the same for all tables
-		this.addFinalRow = function(){
-			var row = this.table.tBodies[0].insertRow();
-			row.id = this.lastRowId;
-			var cellId = row.insertCell(0);
-			cellId.innerHTML = "<span onclick=\"" + this.tableName + ".addEditRowToTable();\">+</span>";
-		};
-		
-		// it's the same for all tables
-		this.removeRow = function (id){
-			var i;
-			for (i = 0; i < this.collection.length; i++){
-				if (this.collection[i].id === id) {
-					if (this.canElementBeRemoved(this.collection[i].id)){
-						this.collection.splice(i,1);
-						document.getElementById("errorBox").innerHTML = "";
-						break;
-					} else {
-						document.getElementById("errorBox").innerHTML = "Please delete the child dependencies first";
-					}
-				}
-			}
-	
-			this.render();
-		};
-		
-		this.canElementBeRemoved = function() {
-			return true;
-		};
-	};
-	
-	function ClientTable() {
-		this.table = document.getElementById("clientsTable");
-		this.collection = clientCollection;
-		this.tableName = "clientsTable";
-		this.lastRowId = "addNewClientRow";
-		
-		this.render = function () {
-			var i;             
-			
-			// clear body in case it exists
-			if (this.table.tBodies[0] !== undefined){
-				this.table.removeChild(this.table.tBodies[0]);
-			}
-			this.table.createTBody();
-			
-			if (this.collection.length > 0){
-				for (i = 0; i < this.collection.length; i++) {
-					var object = this.collection[i];
-					this.addRowToTable(object);
-				}
-				this.addFinalRow();
-			} else {
-				this.addEditRowToTable();
-			}
-		};
-		
-		this.addRowToTable = function(client){
-			var row = this.table.tBodies[0].insertRow();
-			var cellId = row.insertCell(0);
-			var cellName = row.insertCell(1);
-			var cellCountry = row.insertCell(2);
-			var cellEditOrSave = row.insertCell(3);
-			var cellDelete= row.insertCell(4);
-			
-			cellId.innerHTML = client.id;
-			cellName.innerHTML = client.name;
-			cellCountry.innerHTML = countryMap[client.country];
-			cellEditOrSave.innerHTML = "";
-			cellDelete.innerHTML = "<span onclick=\"" + this.tableName + ".removeRow(" + client.id + ")\">" + DELETE + "</span>";
-		};
-		
-		this.addEditRowToTable = function(){
-			var numberOfRowsInTable = this.table.tBodies[0].getElementsByTagName('tr').length;
-			if (numberOfRowsInTable > 0){
-				this.table.tBodies[0].deleteRow(numberOfRowsInTable - 1);
-			}
-			
-			var row = this.table.tBodies[0].insertRow();
-			var cellId = row.insertCell(0);
-			var cellName = row.insertCell(1);
-			var cellCountry = row.insertCell(2);
-			var cellEditOrSave = row.insertCell(3);
-			var cellDelete= row.insertCell(4);
-			
-			cellId.innerHTML = "";
-			cellName.innerHTML = "<input id=\"clientName\" type=\"text\" />";
-			var selectCountry = generateSelectByMap(countryMap, "country");
-			selectCountry.selectedIndex = 0;
-			cellCountry.appendChild(selectCountry);
-			cellEditOrSave.innerHTML = "<span onclick=\"" + this.tableName + ".save()\">" + SAVE + "</span>";
-			cellDelete.innerHTML = "<span onclick=\"" + this.tableName + ".render();\">" + CANCEL + "</span>";
-		};
-		
-		this.save = function(){
-			if (document.getElementById("clientName").value.trim() !== ""){
-				var client = new Client(document.getElementById("clientName").value, document.getElementById("country").value);
-				this.collection[this.collection.length] = client;
-				document.getElementById("errorBox").innerHTML = "";
-			} else {
-				document.getElementById("errorBox").innerHTML = "Please enter valid non empty values";
-			}
-			this.render();
-			projectsTable.render();
-			
-			localStorage.setItem("clientCollection", JSON.stringify(this.collection));
-		};
-	}   
-	ClientTable.prototype = new Table();
-	ClientTable.prototype.canElementBeRemoved = function(clientId) {
-		var i;
-		for (i = 0; i < projectCollection.length; i++) {
-			if (projectCollection[i].client_id == clientId) {
-				return false;
-			}
-		}
-		
-		return true;
-	};
-	
-	function ProjectTable() {
-		this.table = document.getElementById("projectsTable");
-		this.collection = projectCollection;
-		this.tableName = "projectsTable";
-		this.lastRowId = "addNewProjectRow";
-		
-		this.addRowToTable = function(project){
-			var row = this.table.tBodies[0].insertRow();
-			var cellId = row.insertCell(0);
-			var cellName = row.insertCell(1);
-			var cellClient = row.insertCell(2);
-			var cellEditOrSave = row.insertCell(3);
-			var cellDelete= row.insertCell(4);
-			
-			cellId.innerHTML = project.id;
-			cellName.innerHTML = project.name;
-			var client = findObjectById(clientCollection, project.client_id);
-			if (client !== null) {
-				cellClient.innerHTML = client.id + " " + client.name;
-			}
-			cellEditOrSave.innerHTML = "";
-			cellDelete.innerHTML = "<span onclick=\"" + this.tableName + ".removeRow(" + project.id + ")\">" + DELETE + "</span>";
-		};
-		
-		this.addEditRowToTable = function(){
-			var selectClient = generateSelect(clientCollection, "client_id");
-			if (selectClient !== undefined) {
-				var numberOfRowsInTable = this.table.tBodies[0].getElementsByTagName('tr').length;
-				if (numberOfRowsInTable > 0){
-					this.table.tBodies[0].deleteRow(numberOfRowsInTable - 1);
-				}
-				
-				var row = this.table.tBodies[0].insertRow();
-				var cellId = row.insertCell(0);
-				var cellName = row.insertCell(1);
-				var cellClient = row.insertCell(2);
-				var cellEditOrSave = row.insertCell(3);
-				var cellDelete= row.insertCell(4);
-				
-				cellId.innerHTML = "";
-				cellName.innerHTML = "<input id=\"projectName\" type=\"text\" />";
-				
-				selectClient.selectedIndex = 0;
-				cellClient.appendChild(selectClient);
-				cellEditOrSave.innerHTML = "<span onclick=\"" + this.tableName + ".save()\">" + SAVE + "</span>";
-				cellDelete.innerHTML = "<span onclick=\"" + this.tableName + ".render();\">" + CANCEL + "</span>";	
-			}
-		};
-		
-		this.save = function(){
-			if (document.getElementById("projectName").value.trim() !== ""){
-				var project = new Project(document.getElementById("projectName").value, document.getElementById("client_id").value);
-				this.collection[this.collection.length] = project;
-				document.getElementById("errorBox").innerHTML = "";
-			} else {
-				document.getElementById("errorBox").innerHTML = "Please enter valid non empty values";
-			}			
-			this.render();
-			employeesTable.render();
-			
-			localStorage.setItem("projectCollection", JSON.stringify(this.collection));
-		};
-	}        
-	ProjectTable.prototype = new Table();
-	ProjectTable.prototype.canElementBeRemoved = function(projectId) {
-		var i, j;
-		for (i = 0; i < employeeCollection.length; i++) {
-			if (employeeCollection[i].projects !== undefined) {
-				for (j = 0; j < employeeCollection[i].projects.length; j++) {
-					if (employeeCollection[i].projects[j] == projectId) {
-						return false;
-					}
-				}
-			}
-		}
-		
-		return true;
-	};
-		
-	function EmployeeTable() {
-		this.table = document.getElementById("employeesTable");
-		this.collection = employeeCollection;
-		this.tableName = "employeesTable";
-		this.lastRowId = "addNewProjectRow";
-		
-		this.addRowToTable = function(employee){
-			var row = this.table.tBodies[0].insertRow();
-			var cellId = row.insertCell(0);
-			var cellFirstName = row.insertCell(1);
-			var cellLastName = row.insertCell(2);
-			var cellGender = row.insertCell(3);
-			var cellProjects = row.insertCell(4);
-			var cellEditOrSave = row.insertCell(5);
-			var cellDelete= row.insertCell(6);
-			
-			cellId.innerHTML = employee.id;
-			cellFirstName.innerHTML = employee.firstname;
-			cellLastName.innerHTML = employee.lastname;
-			cellGender.innerHTML = genderMap[employee.gender];
-			
-			var htmlContent= ""
-			if (employee.projects !== undefined) {
-				for (var i = 0; i < employee.projects.length; i++){
-					var project = findObjectById(projectCollection, employee.projects[i])
-					htmlContent += project;
-					htmlContent += "<br />"
-				}
-			}
-		
-			cellProjects.innerHTML = htmlContent;
-			
-			cellEditOrSave.innerHTML = "";
-			cellDelete.innerHTML = "<span onclick=\"" + this.tableName + ".removeRow(" + employee.id + ")\">" + DELETE + "</span>";
-		};
-		
-		this.addEditRowToTable = function(){
-			var selectProjects = generateSelect(projectCollection, "projects", true);	
-			if (selectProjects !== undefined) {
-				var numberOfRowsInTable = this.table.tBodies[0].getElementsByTagName('tr').length;
-				if (numberOfRowsInTable > 0){
-					this.table.tBodies[0].deleteRow(numberOfRowsInTable - 1);
-				}
-			
-				var row = this.table.tBodies[0].insertRow();
-				var cellId = row.insertCell(0);
-				var cellFirstName = row.insertCell(1);
-				var cellLastName = row.insertCell(2);
-				var cellGender = row.insertCell(3);
-				var cellProjects = row.insertCell(4);
-				var cellEditOrSave = row.insertCell(5);
-				var cellDelete= row.insertCell(6);
-				
-				cellId.innerHTML = "";
-				cellFirstName.innerHTML = "<input id=\"employeeFirstName\" type=\"text\" />";
-				cellLastName.innerHTML = "<input id=\"employeeLastName\" type=\"text\" />";
-				
-				var selectGender = generateSelectByMap(genderMap, "gender");
-				selectGender.selectedIndex = 0;
-				cellGender.appendChild(selectGender);
-				
-				selectProjects.selectedIndex = 0;
-				cellProjects.appendChild(selectProjects);
-			
-				cellEditOrSave.innerHTML = "<span onclick=\"" + this.tableName + ".save()\">" + SAVE + "</span>";
-				cellDelete.innerHTML = "<span onclick=\"" + this.tableName + ".render();\">" + CANCEL + "</span>";	
-			}
-		};
-		
-		this.save = function(){
-			if (document.getElementById("employeeFirstName").value.trim() !== "" && document.getElementById("employeeLastName").value.trim() !== ""){
-				var employee = new Employee(document.getElementById("employeeFirstName").value, document.getElementById("employeeLastName").value, document.getElementById("gender").value, getSelectedValues("projects"));
-				this.collection[this.collection.length] = employee;
-				document.getElementById("errorBox").innerHTML = "";
-			} else {
-				document.getElementById("errorBox").innerHTML = "Please enter valid non empty values";
-			}	
-
-			this.render();
-			
-			localStorage.setItem("employeeCollection", JSON.stringify(this.collection));
-		};
-	}        
-	EmployeeTable.prototype = new Table();
-		
 	function mock(){
 		// removing all of the existing elements
 		clientCollection.splice(0, clientCollection.length);
@@ -496,6 +56,7 @@
 		localStorage.setItem("projectCollection", JSON.stringify(projectCollection));
 		localStorage.setItem("employeeCollection", JSON.stringify(employeeCollection));
 	}
+	
 	function clearCollectionAndTable(collection, table){
 		// removing all of the existing elements
 		collection.splice(0, collection.length);
@@ -503,7 +64,7 @@
 		table.render();
 	}
 	
-	function clearTables(){
+	function clearTablesAndResetData(){
 		clearCollectionAndTable(clientCollection, clientsTable);
 		clearCollectionAndTable(projectCollection, projectsTable);
 		clearCollectionAndTable(employeeCollection, employeesTable);
@@ -566,7 +127,7 @@ select#projects {
 	
 	<div style="color: green;">
 		<input type="button" value="Generate mock data" onclick="mock()"/>
-		<input type="button" value="Clear data" onclick="clearTables()"/>	
+		<input type="button" value="Clear data" onclick="clearTablesAndResetData()"/>	
 		<!--<input type="button" value="Load local storage" onclick="loadLocalStorage()"/>-->
 	</div>
 	<br />
@@ -612,8 +173,17 @@ select#projects {
 			</tr>
 		</thead>
 	</table>
-	
-	<script>
+	<script src="js/enumerations.js"></script> 	
+	<script src="js/util.js"></script> 	
+	<script src="js/entity/Client.js"></script> 
+	<script src="js/entity/Project.js"></script> 
+	<script src="js/entity/Employee.js"></script> 
+	<script src="js/table/Table.js"></script> 
+	<script src="js/table/ClientTable.js"></script> 
+	<script src="js/table/ProjectTable.js"></script> 
+	<script src="js/table/EmployeeTable.js"></script> 
+	 
+	 <script>
 		var clientsTable = new ClientTable();
 		var projectsTable = new ProjectTable();
 		var employeesTable = new EmployeeTable();
