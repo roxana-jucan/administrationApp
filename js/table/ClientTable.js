@@ -1,6 +1,6 @@
 function ClientTable() {
 	this.table = document.getElementById("clientsTable");
-	this.collection = clientCollection;
+	this.collection = [];
 	this.tableName = "clientsTable";
 	this.lastRowId = "addNewClientRow";
 	
@@ -49,17 +49,21 @@ function ClientTable() {
 		} else {
 			document.getElementById("errorBox").innerHTML = "Please enter valid non empty values";
 		}
+		
+		this.storeDataToLocalStorage();
 		this.render();
 		projectsTable.render();
-		
-		localStorage.setItem("clientCollection", JSON.stringify(this.collection));
 	};
+	
+	this.storeDataToLocalStorage = function(){
+		localStorage.setItem("clientCollection", JSON.stringify(this.collection));
+	}
 }   
 ClientTable.prototype = new Table();
 ClientTable.prototype.canElementBeRemoved = function(clientId) {
 	var i;
-	for (i = 0; i < projectCollection.length; i++) {
-		if (projectCollection[i].client_id == clientId) {
+	for (i = 0; i < projectsTable.collection.length; i++) {
+		if (projectsTable.collection[i].client_id == clientId) {
 			return false;
 		}
 	}

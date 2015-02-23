@@ -14,90 +14,79 @@
 	var CANCEL = "Cancel";
 	var SAVE = "Save";
 
-	// creating the arrays
-	var clientCollection = [];
-	var projectCollection = [];
-	var employeeCollection = [];
-	
 	function mock(){
 		// removing all of the existing elements
-		clientCollection.splice(0, clientCollection.length);
-		clientCollection[0] = new Client('TraceOne', 'FR');
-		clientCollection[1] = new Client('DSO', 'FR');
-		clientCollection[2] = new Client('BlackDuck', 'US');
-		clientCollection[3] = new Client('Karavel', 'FR');
-		clientCollection[4] = new Client('Isiom', 'US');
+		clientsTable.collection.splice(0, clientsTable.collection.length);
+		clientsTable.collection[0] = new Client('TraceOne', 'FR');
+		clientsTable.collection[1] = new Client('DSO', 'FR');
+		clientsTable.collection[2] = new Client('BlackDuck', 'US');
+		clientsTable.collection[3] = new Client('Karavel', 'FR');
+		clientsTable.collection[4] = new Client('Isiom', 'US');
 		// rendering table
+		clientsTable.storeDataToLocalStorage();
 		clientsTable.render();
 		
 		// removing all of the existing elements
-		projectCollection.splice(0, projectCollection.length);
-		projectCollection[0] = new Project('Catalogic', clientCollection[0].id);
-		projectCollection[1] = new Project('Automation', clientCollection[0].id);
-		projectCollection[2] = new Project('SpecV4', clientCollection[0].id);
-		projectCollection[3] = new Project('BI', clientCollection[0].id);
-		projectCollection[4] = new Project('Isiom', clientCollection[4].id);
+		projectsTable.collection.splice(0, projectsTable.collection.length);
+		projectsTable.collection[0] = new Project('Catalogic', clientsTable.collection[0].id);
+		projectsTable.collection[1] = new Project('Automation', clientsTable.collection[0].id);
+		projectsTable.collection[2] = new Project('SpecV4', clientsTable.collection[0].id);
+		projectsTable.collection[3] = new Project('BI', clientsTable.collection[0].id);
+		projectsTable.collection[4] = new Project('Isiom', clientsTable.collection[4].id);
 		// rendering table
+		projectsTable.storeDataToLocalStorage();
 		projectsTable.render();
 		
 		// removing all of the existing elements
-		employeeCollection.splice(0, employeeCollection.length);
-		employeeCollection[0] = new Employee("Roxana", "JUCAN", "F", [projectCollection[0].id, projectCollection[3].id]);
-		employeeCollection[1] = new Employee("Narcis", "BURAGA", "M", [projectCollection[0].id]);
-		employeeCollection[2] = new Employee("Miruna", "DITU", "F", [projectCollection[4].id] );
+		employeesTable.collection.splice(0, employeesTable.collection.length);
+		employeesTable.collection[0] = new Employee("Roxana", "JUCAN", "F", [projectsTable.collection[0].id, projectsTable.collection[3].id]);
+		employeesTable.collection[1] = new Employee("Narcis", "BURAGA", "M", [projectsTable.collection[0].id]);
+		employeesTable.collection[2] = new Employee("Miruna", "DITU", "F", [projectsTable.collection[4].id] );
 		// rendering table
+		employeesTable.storeDataToLocalStorage();
 		employeesTable.render();
-		
-		storeDataToLocalStorage();
 	}
 	
-	function storeDataToLocalStorage(){
-		localStorage.setItem("clientCollection", JSON.stringify(clientCollection));
-		localStorage.setItem("projectCollection", JSON.stringify(projectCollection));
-		localStorage.setItem("employeeCollection", JSON.stringify(employeeCollection));
-	}
-	
-	function clearCollectionAndTable(collection, table){
+	function clearCollectionAndTable(table){
 		// removing all of the existing elements
-		collection.splice(0, collection.length);
+		table.collection.splice(0, table.collection.length);
 		// rendering table
+		table.storeDataToLocalStorage();
 		table.render();
 	}
 	
 	function clearTablesAndResetData(){
-		clearCollectionAndTable(clientCollection, clientsTable);
-		clearCollectionAndTable(projectCollection, projectsTable);
-		clearCollectionAndTable(employeeCollection, employeesTable);
-		
-		storeDataToLocalStorage();
+		clearCollectionAndTable(clientsTable);
+		clearCollectionAndTable(projectsTable);
+		clearCollectionAndTable(employeesTable);
 	}
 	
 	function loadLocalStorage(){
 		var i;
 		
 		clientCollectionJSON = JSON.parse(localStorage.getItem("clientCollection"));
-		clientCollection.splice(0, clientCollection.length);
+		clientsTable.collection.splice(0, clientsTable.collection.length);
 		if (clientCollectionJSON !== null) {
 			for (i= 0; i < clientCollectionJSON.length; i++){
-				clientCollection[i] = Client.fromJSON(clientCollectionJSON[i]);
+				clientsTable.collection[i] = Client.fromJSON(clientCollectionJSON[i]);
 			}
 		}
 		clientsTable.render();
 
 		projectCollectionJSON = JSON.parse(localStorage.getItem("projectCollection"));
-		projectCollection.splice(0, projectCollection.length);
+		projectsTable.collection.splice(0, projectsTable.collection.length);
 		if (projectCollectionJSON !== null) {
 			for (i= 0; i < projectCollectionJSON.length; i++){
-				projectCollection[i] = Project.fromJSON(projectCollectionJSON[i]);
+				projectsTable.collection[i] = Project.fromJSON(projectCollectionJSON[i]);
 			}
 		}
 		projectsTable.render();
 				
 		employeeCollectionJSON = JSON.parse(localStorage.getItem("employeeCollection"));
-		employeeCollection.splice(0, employeeCollection.length);
+		employeesTable.collection.splice(0, employeesTable.collection.length);
 		if (employeeCollectionJSON !== null) {
 			for (i= 0; i < employeeCollectionJSON.length; i++){
-				employeeCollection[i] = Employee.fromJSON(employeeCollectionJSON[i]);
+				employeesTable.collection[i] = Employee.fromJSON(employeeCollectionJSON[i]);
 			}
 		}
 		employeesTable.render();

@@ -1,6 +1,6 @@
 function ProjectTable() {
 	this.table = document.getElementById("projectsTable");
-	this.collection = projectCollection;
+	this.collection = [];
 	this.tableName = "projectsTable";
 	this.lastRowId = "addNewProjectRow";
 	
@@ -14,7 +14,7 @@ function ProjectTable() {
 		
 		cellId.innerHTML = project.id;
 		cellName.innerHTML = project.name;
-		var client = findObjectById(clientCollection, project.client_id);
+		var client = findObjectById(clientsTable.collection, project.client_id);
 		if (client !== null) {
 			cellClient.innerHTML = client.id + " " + client.name;
 		}
@@ -23,7 +23,7 @@ function ProjectTable() {
 	};
 	
 	this.addEditRowToTable = function(){
-		var selectClient = generateSelect(clientCollection, "client_id");
+		var selectClient = generateSelect(clientsTable.collection, "client_id");
 		if (selectClient !== undefined) {
 			var numberOfRowsInTable = this.table.tBodies[0].getElementsByTagName('tr').length;
 			if (numberOfRowsInTable > 0){
@@ -54,20 +54,24 @@ function ProjectTable() {
 			document.getElementById("errorBox").innerHTML = "";
 		} else {
 			document.getElementById("errorBox").innerHTML = "Please enter valid non empty values";
-		}			
+		}	
+
+		this.storeDataToLocalStorage();		
 		this.render();
 		employeesTable.render();
-		
-		localStorage.setItem("projectCollection", JSON.stringify(this.collection));
 	};
+	
+	this.storeDataToLocalStorage = function(){
+		localStorage.setItem("projectCollection", JSON.stringify(this.collection));
+	}
 }        
 ProjectTable.prototype = new Table();
 ProjectTable.prototype.canElementBeRemoved = function(projectId) {
 	var i, j;
-	for (i = 0; i < employeeCollection.length; i++) {
-		if (employeeCollection[i].projects !== undefined) {
-			for (j = 0; j < employeeCollection[i].projects.length; j++) {
-				if (employeeCollection[i].projects[j] == projectId) {
+	for (i = 0; i < employeesTable.collection.length; i++) {
+		if (employeesTable.collection[i].projects !== undefined) {
+			for (j = 0; j < employeesTable.collection[i].projects.length; j++) {
+				if (employeesTable.collection[i].projects[j] == projectId) {
 					return false;
 				}
 			}

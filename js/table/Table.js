@@ -43,6 +43,7 @@ var Table = function(){
 			}
 		}
 
+		this.storeDataToLocalStorage();
 		this.render();
 	};
 	

@@ -1,5 +1,5 @@
 var Client = function(name, country) {
-	this.id = nextIndex(clientCollection);
+	this.id = nextIndex(clientsTable.collection);
 	this.name = name;
 	this.country = country;
 };

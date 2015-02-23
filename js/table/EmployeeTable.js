@@ -1,6 +1,6 @@
 function EmployeeTable() {
 	this.table = document.getElementById("employeesTable");
-	this.collection = employeeCollection;
+	this.collection = [];
 	this.tableName = "employeesTable";
 	this.lastRowId = "addNewProjectRow";
 	
@@ -22,7 +22,7 @@ function EmployeeTable() {
 		var htmlContent= ""
 		if (employee.projects !== undefined) {
 			for (var i = 0; i < employee.projects.length; i++){
-				var project = findObjectById(projectCollection, employee.projects[i])
+				var project = findObjectById(projectsTable.collection, employee.projects[i])
 				htmlContent += project;
 				htmlContent += "<br />"
 			}
@@ -35,7 +35,7 @@ function EmployeeTable() {
 	};
 	
 	this.addEditRowToTable = function(){
-		var selectProjects = generateSelect(projectCollection, "projects", true);	
+		var selectProjects = generateSelect(projectsTable.collection, "projects", true);	
 		if (selectProjects !== undefined) {
 			var numberOfRowsInTable = this.table.tBodies[0].getElementsByTagName('tr').length;
 			if (numberOfRowsInTable > 0){
@@ -75,11 +75,14 @@ function EmployeeTable() {
 		} else {
 			document.getElementById("errorBox").innerHTML = "Please enter valid non empty values";
 		}	
-
-		this.render();
 		
-		localStorage.setItem("employeeCollection", JSON.stringify(this.collection));
+		this.storeDataToLocalStorage();
+		this.render();
 	};
+	
+	this.storeDataToLocalStorage = function(){
+		localStorage.setItem("employeeCollection", JSON.stringify(this.collection));
+	}
 }        
 EmployeeTable.prototype = new Table();
 		

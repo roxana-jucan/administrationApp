@@ -1,5 +1,5 @@
 var Employee = function(firstname, lastname, gender, projects) {
-	this.id = nextIndex(employeeCollection);
+	this.id = nextIndex(employeesTable.collection);
 	this.firstname = firstname;
 	this.lastname = lastname;
 	this.gender = gender;

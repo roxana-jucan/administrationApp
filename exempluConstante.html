@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Pentalog Administration App</title>
+<script>
+
+	// Question ???
+	// Why can't I use constants for my select list
+	var MALE = "M";
+	var FEMALE = "F";
+	
+	var genderMap = {MALE : "Male", FEMALE : "Female"};
+	
+	// creating an element of type "select" and populating it with some values
+	// the values will be those corresponding to the map
+	function generateSelectByMap(map, id){
+		var selectObject = document.createElement("select");
+		var key;
+		selectObject.id = id;
+		
+		// Question ???
+		// why is this a good practice?
+		// The body of a for in should be wrapped in an if statement to filter unwanted properties from the prototype.
+		for(key in map){
+			if (map.hasOwnProperty(key)) {
+				selectObject.options.add(new Option(map[key],key));
+			}
+		}
+		selectObject.onChange = updateX();
+		return selectObject;
+	}
+	
+	function mock(){
+		// removing all of the existing elements
+		employeesTable.collection.splice(0, employeesTable.collection.length);
+		employeesTable.collection[0] = new Employee("Roxana", "JUCAN", FEMALE, null);
+		employeesTable.collection[1] = new Employee("Narcis", "BURAGA", MALE, null);
+		employeesTable.collection[2] = new Employee("Miruna", "DITU", FEMALE, null);
+		// rendering table
+		employeesTable.render();
+	}
+</script>
+</head>
+<body>
+	<div id="sample"></div>
+	
+	<div id="result"></div>
+	 <script>
+		document.getElementById("sample").appendChild(generateSelectByMap(genderMap, "testId"));
+		
+		
+		document.getElementById("testId").onChange = updateValue();
+
+		
+		function updateX(){
+		}
+		
+		function updateValue(){
+			alert(document.getElementById("testId").value);
+			//document.getElementById("result").innerHTML = genderMap[document.getElementById("testId").selectedIndex];
+		}	
+	</script>
+</body>
+</html>
